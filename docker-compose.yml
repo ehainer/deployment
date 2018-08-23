@@ -1,0 +1,23 @@
+version: '2'
+services:
+  nginx:
+    build: .
+    image: ehainer/deploy:latest
+    restart: always
+    command: nginx
+    ports:
+      - 443:443
+      - 8080:80
+    links:
+      - rails
+    depends_on:
+      - rails
+  rails:
+    build: .
+    image: ehainer/deploy:latest
+    restart: always
+    command: rails s
+    ports:
+      - 3000:3000
+    env_file:
+      - .env
