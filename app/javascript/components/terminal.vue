@@ -1,6 +1,6 @@
 <template>
   <pre class="terminal">
-    <p class="message">Awaiting instructions...</p>
+    <p class="message">Waiting...</p>
   </pre>
 </template>
 
@@ -16,7 +16,6 @@ export default {
         if(data.clear){
           this.clear();
         }else if(data.message){
-          console.log(data);
           this.write(data.message, data.class || '');
         }
       }
@@ -24,7 +23,7 @@ export default {
   },
   methods: {
     clear: function(){
-      $(this.$el).html('<p class="message">Deploying Motherboard...</p>');
+      $(this.$el).html('');
     },
     write: function(message, klass){
       $(this.$el).append($('<p />', { class: 'message ' + klass }).html(message));
