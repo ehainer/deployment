@@ -1,5 +1,7 @@
 class Deployment
 
+  class DeployPending < StandardError; end
+
   attr_reader :staging, :production
 
   def initialize(staging, production)
@@ -14,6 +16,12 @@ class Deployment
     heroku.upgrade('redis-volatile', 'heroku-redis:premium-0')
     heroku.upgrade('redis-persistent', 'heroku-redis:premium-0')
     heroku.upgrade('mailgun-production', 'mailgun:basic')
+
+    ActionCable.server.broadcast 'deployment', message: 'Resizing Dyno -> hobby', class: 'heading'
+    heroku.resize('hobby')
+
+    migrate
+    launch
   end
 
   def downgrade
@@ -22,11 +30,24 @@ class Deployment
     heroku.downgrade('redis-volatile', 'heroku-redis:hobby-dev')
     heroku.downgrade('redis-persistent', 'heroku-redis:hobby-dev')
     heroku.downgrade('mailgun-production', 'mailgun:starter')
+
+    ActionCable.server.broadcast 'deployment', message: 'Resizing Dyno -> free', class: 'heading'
+    heroku.resize('free')
   end
 
   def launch
     ActionCable.server.broadcast 'deployment', message: 'Promoting Staging -> Production', class: 'heading'
     heroku.promote(staging, production)
+  end
+
+  def migrate
+    ActionCable.server.broadcast 'deployment', message: 'Migrating Database', class: 'heading'
+    heroku.migrate
+  end
+
+  def maintenance
+    ActionCable.server.broadcast 'deployment', message: 'Toggling Maintenance Mode', class: 'heading'
+    heroku.maintenance
   end
 
   private

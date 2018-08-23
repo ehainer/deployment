@@ -34,6 +34,24 @@ class Heroku
     process "heroku pipelines:promote --app #{from} --to #{to}"
   end
 
+  def resize(tier)
+    tier = sanitize(tier)
+    process "heroku dyno:resize #{tier} --app #{app}"
+  end
+
+  def migrate
+    process "heroku run rake db:migrate --app #{app}"
+  end
+
+  def maintenance
+    status = `heroku maintenance --app #{app}`
+    if status == 'off'
+      process "heroku maintenance:on --app #{app}"
+    else
+      process "heroku maintenance:off --app #{app}"
+    end
+  end
+
   private
 
     def sanitize(text)

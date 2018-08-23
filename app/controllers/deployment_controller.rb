@@ -9,7 +9,13 @@ class DeploymentController < ApplicationController
   def index; end
 
   def create
-    DeploymentJob.perform_later
+    DeploymentJob.perform_later(task) if task
   end
+
+  private
+
+    def task
+      (['upgrade', 'downgrade', 'maintenance'] & [params[:task]]).first || false
+    end
 
 end
