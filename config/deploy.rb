@@ -1,5 +1,5 @@
 # Config valid only for current version of Capistrano
-lock '3.10.2'
+lock '3.11.0'
 
 require 'colorize'
 
@@ -180,22 +180,8 @@ namespace :deploy do
     end
   end
 
-  after :publishing, 'contentful:clear'
   after :publishing, 'rails:clear'
   after :publishing, :restart
-end
-
-namespace :contentful do
-  desc 'Clear Contentful Cache'
-  task :clear do
-    on roles(:app) do
-      within release_path do
-        with rails_env: fetch(:rails_env) do
-          execute :rake, 'contentful:clear'
-        end
-      end
-    end
-  end
 end
 
 namespace :rails do
