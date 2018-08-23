@@ -56,6 +56,7 @@ group :development do
   gem 'capistrano3-puma',   require: false
   gem 'capistrano-bundler', require: false
   gem 'capistrano-yarn'
+  gem 'capistrano-sidekiq'
   # Access an interactive console on exception pages or by calling 'console' anywhere in the code.
   gem 'web-console', '>= 3.3.0'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring

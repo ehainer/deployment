@@ -2,7 +2,7 @@ class DeploymentJob < ApplicationJob
 
   rescue_from(Deployment::DeployPending) { retry_job wait: 1.minute }
 
-  def perform(task, state)
+  def perform(task)
     if Setting.deploying
       raise Deployment::DeployPending, 'Deploy already running, waiting 1 minute to try again...'
     else

@@ -5,16 +5,17 @@
 :concurrency: 4
 :timeout: 25
 test:
-  :pidfile: shared/pids/sidekiq.pid
+  :pidfile: tmp/pids/sidekiq.pid
   :verbose: false
   :queues:
     - default
 development:
-  :pidfile: shared/pids/sidekiq.pid
+  :pidfile: tmp/pids/sidekiq.pid
   :verbose: false
   :queues:
     - default
 production:
+  :pidfile: tmp/pids/sidekiq.pid
   :verbose: true
   :queues:
     - default
