@@ -7,7 +7,6 @@ class Deployment
   def initialize(staging, production)
     @staging = staging
     @production = production
-    ActionCable.server.broadcast 'deployment', clear: true
   end
 
   def upgrade

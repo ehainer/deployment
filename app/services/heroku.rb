@@ -45,6 +45,7 @@ class Heroku
 
   def maintenance
     status = `heroku maintenance --app #{app}`
+    ActionCable.server.broadcast 'deployment', message: status
     if /on/ =~ status
       process "heroku maintenance:off --app #{app}"
     else

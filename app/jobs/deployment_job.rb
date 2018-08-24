@@ -7,6 +7,8 @@ class DeploymentJob < ApplicationJob
       raise Deployment::DeployPending, 'Deploy already running, waiting 1 minute to try again...'
     else
       Setting.deploying = true
+      ActionCable.server.broadcast 'deployment', clear: true
+      sleep 1
       case task
         when 'upgrade'
           deployment.upgrade

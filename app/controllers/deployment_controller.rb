@@ -9,7 +9,8 @@ class DeploymentController < ApplicationController
   def index; end
 
   def create
-    DeploymentJob.perform_later(task) if task
+    DeploymentJob.perform_later(task) if task && !Setting.deploying
+    head :ok
   end
 
   private
