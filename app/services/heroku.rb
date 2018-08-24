@@ -58,19 +58,17 @@ class Heroku
     process "heroku addons:create #{tier} --version 9.6 --app #{app}"
     process "heroku pg:wait --app #{app}"
     result = process "heroku pg:info --app #{app}"
-    ActionCable.server.broadcast 'deployment', message: '%%%%%%%%%%%%%'
-    ActionCable.server.broadcast 'deployment', message: result
-    ActionCable.server.broadcast 'deployment', message: '%%%%%%%%%%%%%'
-    database = (result.match(/\bHEROKU_POSTGRESQL_[A-Z]+/) || [])[0]
-    ActionCable.server.broadcast 'deployment', message: "^^^^^^^^ #{database} ^^^^^^^^"
+    new_database = (result.match(/\b(HEROKU_POSTGRESQL_[A-Z_]+)_URL/) || [])[1]
 
-    if database.present?
-      process "heroku pg:copy DATABASE_URL #{database} --app #{app} --confirm #{app}"
-      process "heroku pg:promote #{database} --app #{app}"
+    if new_database.present?
+      process "heroku pg:copy DATABASE_URL #{new_database} --app #{app} --confirm #{app}"
+      process "heroku pg:wait --app #{app}"
+      process "heroku pg:promote #{new_database} --app #{app}"
 
       result = process "heroku pg:info --app #{app}"
-      database = (result.match(/\bHEROKU_POSTGRESQL_[A-Z]+/) || [])[0]
-      ActionCable.server.broadcast 'deployment', message: "******** #{database} ********"
+      old_database = (result.match(/\b(HEROKU_POSTGRESQL_[A-Z_]+)_URL/) || [])[1]
+
+      process "heroku addons:destroy #{old_database} --app #{app}" if old_database.present?
     end
 
     process "heroku ps:scale sidekiq=1 --app #{app}"
