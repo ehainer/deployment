@@ -25,6 +25,8 @@ class Deployment
     migrate
     seed
 
+    heroku.secure
+
     ActionCable.server.broadcast 'deployment', message: 'Deployed!', class: 'heading complete'
   end
 
