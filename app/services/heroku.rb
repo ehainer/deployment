@@ -45,10 +45,10 @@ class Heroku
 
   def maintenance
     status = `heroku maintenance --app #{app}`
-    if /off/ =~ status
-      process "heroku maintenance:on --app #{app}"
-    else
+    if /on/ =~ status
       process "heroku maintenance:off --app #{app}"
+    else
+      process "heroku maintenance:on --app #{app}"
     end
   end
 

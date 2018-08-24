@@ -22,6 +22,8 @@ class Deployment
 
     migrate
     launch
+
+    ActionCable.server.broadcast 'deployment', message: 'Deployed!', class: 'heading complete'
   end
 
   def downgrade
@@ -33,6 +35,8 @@ class Deployment
 
     ActionCable.server.broadcast 'deployment', message: 'Resizing Dyno -> free', class: 'heading'
     heroku.resize('free')
+
+    ActionCable.server.broadcast 'deployment', message: 'Done!', class: 'heading complete'
   end
 
   def launch
