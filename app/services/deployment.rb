@@ -23,6 +23,7 @@ class Deployment
 
     launch
     migrate
+    seed
 
     ActionCable.server.broadcast 'deployment', message: 'Deployed!', class: 'heading complete'
   end
@@ -52,24 +53,15 @@ class Deployment
     heroku.migrate
   end
 
+  def seed
+    ActionCable.server.broadcast 'deployment', message: 'Seeding Database', class: 'heading'
+    heroku.seed
+  end
+
   def maintenance
     ActionCable.server.broadcast 'deployment', message: 'Toggling Maintenance Mode', class: 'heading'
     h = Heroku.new(production)
     h.maintenance
-
-    ActionCable.server.broadcast 'deployment', message: 'Done!', class: 'heading complete'
-  end
-
-  def provision_up
-    ActionCable.server.broadcast 'deployment', message: 'Upgrading Database', class: 'heading'
-    heroku.provision('heroku-postgresql:hobby-basic')
-
-    ActionCable.server.broadcast 'deployment', message: 'Done!', class: 'heading complete'
-  end
-
-  def provision_down
-    ActionCable.server.broadcast 'deployment', message: 'Downgrading Database', class: 'heading'
-    heroku.provision('heroku-postgresql:hobby-dev')
 
     ActionCable.server.broadcast 'deployment', message: 'Done!', class: 'heading complete'
   end

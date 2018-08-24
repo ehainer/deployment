@@ -16,10 +16,6 @@ class DeploymentJob < ApplicationJob
           deployment.downgrade
         when 'maintenance'
           deployment.maintenance
-        when 'provision_up'
-          deployment.provision_up
-        when 'provision_down'
-          deployment.provision_down
       end
       Setting.deploying = false
     end

@@ -43,6 +43,10 @@ class Heroku
     process "heroku run rake db:migrate --app #{app}"
   end
 
+  def seed
+    process "heroku run rake db:seed --app #{app}"
+  end
+
   def maintenance
     status = `heroku maintenance --app #{app}`
     if /on/ =~ status
@@ -62,7 +66,7 @@ class Heroku
 
     if database.present?
       old_database = (database.match(/(HEROKU_POSTGRESQL_[A-Z_]+)_URL/) || [])[1]
-      new_database = (result.match(/===\s+(HEROKU_POSTGRESQL_[A-Z_]+)_URL/) || [])[1]
+      new_database = (result.match(/===\s+(HEROKU_POSTGRESQL_[A-Z_]+)_URL[^,].*$/) || [])[1]
 
       if new_database.present?
         ActionCable.server.broadcast 'deployment', message: "Copying DATABASE_URL to #{new_database}"
