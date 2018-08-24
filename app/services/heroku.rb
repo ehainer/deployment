@@ -83,11 +83,8 @@ class Heroku
   end
 
   def secure
-    status = process "heroku certs:auto --app #{app}", true
-    if (/disabled/ =~ status).present?
-      ActionCable.server.broadcast 'deployment', message: 'Enabling SSL', class: 'heading'
-      process "heroku certs:auto:enable --app #{app}"
-    end
+    ActionCable.server.broadcast 'deployment', message: 'Enabling SSL', class: 'heading'
+    process "heroku certs:auto:enable --app #{app}"
   end
 
   private

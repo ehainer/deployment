@@ -18,9 +18,8 @@ import ActionCable from 'actioncable';
 export default {
   name: 'v-terminal',
   mounted: function(){
-    this.cable.subscriptions.create({ channel: 'DeploymentChannel' }, {
+    this.connection = this.cable.subscriptions.create({ channel: 'DeploymentChannel' }, {
       received: (data) => {
-        console.log(data);
         if(data.clear){
           this.clear();
         }else if(data.message){
@@ -28,6 +27,10 @@ export default {
         }
       }
     });
+
+    window.onbeforeunload = (e) => {
+      if(this.connection) this.connection.unsubscribe();
+    };
   },
   methods: {
     clear: function(){
@@ -36,7 +39,10 @@ export default {
     },
     write: function(message, klass){
       $(this.$el).find('.console').append($('<p />', { class: 'message ' + klass }).html(message));
-      $(document).scrollTop($(document.body).height());
+
+      if($(document.body).height() > $(window).height()){
+        $(document).scrollTop($(document.body).height());
+      }
 
       if(/complete/.test(klass)){
         $(this.$el).find('.loader').hide();
@@ -45,7 +51,8 @@ export default {
   },
   data: function(){
     return {
-      cable: ActionCable.createConsumer()
+      cable: ActionCable.createConsumer(),
+      connection: null
     };
   }
 }

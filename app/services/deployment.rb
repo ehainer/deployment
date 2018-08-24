@@ -18,7 +18,7 @@ class Deployment
     ActionCable.server.broadcast 'deployment', message: 'Upgrading Database', class: 'heading'
     heroku.provision('heroku-postgresql:hobby-basic')
 
-    ActionCable.server.broadcast 'deployment', message: 'Resizing Dyno -> hobby', class: 'heading'
+    ActionCable.server.broadcast 'deployment', message: 'Scaling Up', class: 'heading'
     heroku.resize('hobby')
 
     launch
@@ -39,7 +39,7 @@ class Deployment
     ActionCable.server.broadcast 'deployment', message: 'Downgrading Database', class: 'heading'
     heroku.provision('heroku-postgresql:hobby-dev')
 
-    ActionCable.server.broadcast 'deployment', message: 'Resizing Dyno -> free', class: 'heading'
+    ActionCable.server.broadcast 'deployment', message: 'Scaling Down', class: 'heading'
     heroku.resize('free')
 
     ActionCable.server.broadcast 'deployment', message: 'Done!', class: 'heading complete'
