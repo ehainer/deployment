@@ -58,16 +58,20 @@ class Heroku
     process "heroku addons:create #{tier} --version 9.6 --app #{app}"
     process "heroku pg:wait --app #{app}"
     result = process "heroku pg:info --app #{app}", true
-    old_database = (result.match(/DATABASE_URL,\s+(HEROKU_POSTGRESQL_[A-Z_]+)_URL/) || [])[1]
-    new_database = (result.match(/===\s+(HEROKU_POSTGRESQL_[A-Z_]+)_URL/) || [])[1]
+    database = (result.match(/.*DATABASE_URL.*$/) || [])[0]
 
-    if new_database.present?
-      ActionCable.server.broadcast 'deployment', message: "Copying DATABASE_URL to #{new_database}"
-      process "heroku pg:copy DATABASE_URL #{new_database} --app #{app} --confirm #{app}"
-      process "heroku pg:wait --app #{app}"
-      process "heroku pg:promote #{new_database} --app #{app}"
-      process "heroku pg:wait --app #{app}"
-      process "heroku addons:destroy #{old_database} --app #{app} --confirm #{app}" if old_database.present?
+    if database.present?
+      old_database = (database.match(/(HEROKU_POSTGRESQL_[A-Z_]+)_URL/) || [])[1]
+      new_database = (result.match(/===\s+(HEROKU_POSTGRESQL_[A-Z_]+)_URL/) || [])[1]
+
+      if new_database.present?
+        ActionCable.server.broadcast 'deployment', message: "Copying DATABASE_URL to #{new_database}"
+        process "heroku pg:copy DATABASE_URL #{new_database} --app #{app} --confirm #{app}"
+        process "heroku pg:wait --app #{app}"
+        process "heroku pg:promote #{new_database} --app #{app}"
+        process "heroku pg:wait --app #{app}"
+        process "heroku addons:destroy #{old_database} --app #{app} --confirm #{app}" if old_database.present?
+      end
     end
 
     process "heroku ps:scale sidekiq=1 --app #{app}"
