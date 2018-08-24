@@ -52,6 +52,27 @@ class Heroku
     end
   end
 
+  def provision(tier)
+    process "heroku ps:scale web=0 --app #{app}"
+    process "heroku ps:scale sidekiq=0 --app #{app}"
+    process "heroku addons:create #{tier} --version 9.6 --app #{app}"
+    result = process "heroku pg:wait --app #{app}"
+    database = (result.match(/\b[A-Z_]+\b/) || [])[0]
+    ActionCable.server.broadcast 'deployment', message: "^^^^^^^^ #{database} ^^^^^^^^"
+
+    if database.present?
+      process "heroku pg:copy DATABASE_URL #{database} --app #{app} --confirm #{app}"
+      process "heroku pg:promote #{database} --app #{app}"
+
+      result = process "heroku pg:info --app #{app}"
+      database = (result.match(/\bHEROKU_POSTGRESQL_[A-Z_]+\b/) || [])[0]
+      ActionCable.server.broadcast 'deployment', message: "******** #{database} ********"
+    end
+
+    process "heroku ps:scale sidekiq=1 --app #{app}"
+    process "heroku ps:scale web=1 --app #{app}"
+  end
+
   private
 
     def sanitize(text)
@@ -59,15 +80,18 @@ class Heroku
     end
 
     def process(command)
+      response = ''
       Open3.popen3(command) do |stdin, stdout, stderr, status, thread|
         read_stream, = IO.select([stdout, stderr])
 
         read_stream.each do |stream|
           while line = stream.gets do
+            response += line
             ActionCable.server.broadcast 'deployment', message: line
           end
         end
       end
+      response
     end
 
 end

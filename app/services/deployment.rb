@@ -11,10 +11,12 @@ class Deployment
 
   def upgrade
     ActionCable.server.broadcast 'deployment', message: 'Upgrading Resources', class: 'heading'
-    heroku.upgrade('postgresql-production', 'heroku-postgresql:hobby-basic')
     heroku.upgrade('redis-volatile', 'heroku-redis:premium-0')
     heroku.upgrade('redis-persistent', 'heroku-redis:premium-0')
     heroku.upgrade('mailgun-production', 'mailgun:basic')
+
+    ActionCable.server.broadcast 'deployment', message: 'Upgrading Database', class: 'heading'
+    heroku.provision('heroku-postgresql:hobby-basic')
 
     ActionCable.server.broadcast 'deployment', message: 'Resizing Dyno -> hobby', class: 'heading'
     heroku.resize('hobby')
@@ -27,10 +29,12 @@ class Deployment
 
   def downgrade
     ActionCable.server.broadcast 'deployment', message: 'Downgrading Resources', class: 'heading'
-    heroku.downgrade('postgresql-production', 'heroku-postgresql:hobby-dev')
     heroku.downgrade('redis-volatile', 'heroku-redis:hobby-dev')
     heroku.downgrade('redis-persistent', 'heroku-redis:hobby-dev')
     heroku.downgrade('mailgun-production', 'mailgun:starter')
+
+    ActionCable.server.broadcast 'deployment', message: 'Downgrading Database', class: 'heading'
+    heroku.provision('heroku-postgresql:hobby-dev')
 
     ActionCable.server.broadcast 'deployment', message: 'Resizing Dyno -> free', class: 'heading'
     heroku.resize('free')
@@ -52,6 +56,20 @@ class Deployment
     ActionCable.server.broadcast 'deployment', message: 'Toggling Maintenance Mode', class: 'heading'
     h = Heroku.new(production)
     h.maintenance
+
+    ActionCable.server.broadcast 'deployment', message: 'Done!', class: 'heading complete'
+  end
+
+  def provision_up
+    ActionCable.server.broadcast 'deployment', message: 'Upgrading Database', class: 'heading'
+    heroku.provision('heroku-postgresql:hobby-basic')
+
+    ActionCable.server.broadcast 'deployment', message: 'Done!', class: 'heading complete'
+  end
+
+  def provision_down
+    ActionCable.server.broadcast 'deployment', message: 'Downgrading Database', class: 'heading'
+    heroku.provision('heroku-postgresql:hobby-dev')
 
     ActionCable.server.broadcast 'deployment', message: 'Done!', class: 'heading complete'
   end

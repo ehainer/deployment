@@ -16,7 +16,7 @@ class DeploymentController < ApplicationController
   private
 
     def task
-      (['upgrade', 'downgrade', 'maintenance'] & [params[:task]]).first || false
+      (['upgrade', 'downgrade', 'maintenance', 'provision_up', 'provision_down'] & [params[:task]]).first || false
     end
 
 end
