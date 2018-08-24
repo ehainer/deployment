@@ -50,7 +50,10 @@ class Deployment
 
   def maintenance
     ActionCable.server.broadcast 'deployment', message: 'Toggling Maintenance Mode', class: 'heading'
-    heroku.maintenance
+    h = Heroku.new(production)
+    h.maintenance
+
+    ActionCable.server.broadcast 'deployment', message: 'Done!', class: 'heading complete'
   end
 
   private

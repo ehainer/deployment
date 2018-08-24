@@ -1,6 +1,13 @@
 <template>
   <pre class="terminal">
-    <p class="message pending">Waiting...</p>
+    <div class="console">
+      <p class="message pending">Waiting...</p>
+    </div>
+    <div class="loader" style="display: none;">
+      <span class="first"></span>
+      <span class="second"></span>
+      <span class="third"></span>
+    </div>
   </pre>
 </template>
 
@@ -24,11 +31,16 @@ export default {
   },
   methods: {
     clear: function(){
-      $(this.$el).html('');
+      $(this.$el).find('.console').html('');
+      $(this.$el).find('.loader').show();
     },
     write: function(message, klass){
-      $(this.$el).append($('<p />', { class: 'message ' + klass }).html(message));
+      $(this.$el).find('.console').append($('<p />', { class: 'message ' + klass }).html(message));
       $(this.$el).scrollTop($(this.$el).height());
+
+      if(/complete/.test(klass)){
+        $(this.$el).find('.loader').hide();
+      }
     }
   },
   data: function(){
@@ -44,24 +56,56 @@ export default {
   background-color: #1d1d1d;
   font-size: 15px;
   color: white;
-  padding: 0 8px 8px;
+  padding: 0 15px 15px;
   height: 100vh;
   max-height: 100vh;
   overflow: auto;
 
-  > .pending {
-    margin-top: 8px;
+  > .console {
+    > .pending {
+      margin-top: 15px;
+    }
+  }
+
+  > .loader {
+    height: 10px;
+    margin: 8px 0 15px;
+    font-size: 0;
+
+    > span {
+      display: inline-block;
+      margin: 0 10px 0 0;
+      width: 8px;
+      height: 8px;
+      background-color: #ffffff;
+      border-radius: 50%;
+      float: left;
+      animation: loader 1400ms infinite ease-in-out;
+
+      &.first {
+        animation-delay: -320ms;
+      }
+
+      &.second {
+        animation-delay: -160ms;
+      }
+    }
   }
 
   /deep/ .heading {
     font-size: 18px;
     font-weight: bold;
     color: #01b7b7;
-    margin: 8px 0;
+    margin: 15px 0 8px;
   }
 
   /deep/ .complete {
     color: #07b333;
   }
+}
+
+@keyframes loader {
+  0%, 80%, 100% { opacity: 0; }
+  40% { opacity: 1; }
 }
 </style>
