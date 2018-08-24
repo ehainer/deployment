@@ -57,18 +57,17 @@ class Heroku
     process "heroku ps:scale sidekiq=0 --app #{app}"
     process "heroku addons:create #{tier} --version 9.6 --app #{app}"
     process "heroku pg:wait --app #{app}"
-    result = process "heroku pg:info --app #{app}"
-    new_database = (result.match(/\b(HEROKU_POSTGRESQL_[A-Z_]+)_URL/) || [])[1]
+    result = process "heroku pg:info --app #{app}", true
+    old_database = (result.match(/DATABASE_URL,\s+(HEROKU_POSTGRESQL_[A-Z_]+)_URL/) || [])[1]
+    new_database = (result.match(/===\s+(HEROKU_POSTGRESQL_[A-Z_]+)_URL/) || [])[1]
 
     if new_database.present?
+      ActionCable.server.broadcast 'deployment', message: "Copying DATABASE_URL to #{new_database}"
       process "heroku pg:copy DATABASE_URL #{new_database} --app #{app} --confirm #{app}"
       process "heroku pg:wait --app #{app}"
       process "heroku pg:promote #{new_database} --app #{app}"
-
-      result = process "heroku pg:info --app #{app}"
-      old_database = (result.match(/\b(HEROKU_POSTGRESQL_[A-Z_]+)_URL/) || [])[1]
-
-      process "heroku addons:destroy #{old_database} --app #{app}" if old_database.present?
+      process "heroku pg:wait --app #{app}"
+      process "heroku addons:destroy #{old_database} --app #{app} --confirm #{app}" if old_database.present?
     end
 
     process "heroku ps:scale sidekiq=1 --app #{app}"
@@ -81,7 +80,7 @@ class Heroku
       text.gsub(/[^a-z\-:0-9]+/, '')
     end
 
-    def process(command)
+    def process(command, silent=false)
       response = ''
       Open3.popen3(command) do |stdin, stdout, stderr, status, thread|
         read_stream, = IO.select([stdout, stderr])
@@ -89,7 +88,9 @@ class Heroku
         read_stream.each do |stream|
           while line = stream.gets do
             response += line
-            ActionCable.server.broadcast 'deployment', message: line
+            unless silent
+              ActionCable.server.broadcast 'deployment', message: line
+            end
           end
         end
       end
