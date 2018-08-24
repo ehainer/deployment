@@ -36,7 +36,7 @@ export default {
     },
     write: function(message, klass){
       $(this.$el).find('.console').append($('<p />', { class: 'message ' + klass }).html(message));
-      $(this.$el).scrollTop($(this.$el).height());
+      $(document).scrollTop($(document.body).height());
 
       if(/complete/.test(klass)){
         $(this.$el).find('.loader').hide();
@@ -57,9 +57,7 @@ export default {
   font-size: 15px;
   color: white;
   padding: 0 15px 15px;
-  height: 100vh;
-  max-height: 100vh;
-  overflow: auto;
+  min-height: 100vh;
 
   > .console {
     > .pending {

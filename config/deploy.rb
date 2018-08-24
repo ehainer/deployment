@@ -18,7 +18,7 @@ set :ruby_version, '2.5.1'
 set :application, 'rails'
 
 set :sidekiq_config, 'config/sidekiq.yml'
-set :sidekiq_pid, File.join('../', 'tmp', 'pids', 'sidekiq.pid')
+set :sidekiq_pid, File.join('tmp', 'pids', 'sidekiq.pid')
 
 ## Bundler ENV
 set :bundle_env_variables, {

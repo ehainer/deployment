@@ -5,6 +5,7 @@ require 'capistrano/setup'
 require 'capistrano/deploy'
 require 'capistrano/rails'
 require 'capistrano/rvm'
+require 'capistrano/sidekiq'
 require 'capistrano-db-tasks'
 require 'capistrano/yarn'
 

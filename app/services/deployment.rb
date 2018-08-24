@@ -19,8 +19,8 @@ class Deployment
     ActionCable.server.broadcast 'deployment', message: 'Resizing Dyno -> hobby', class: 'heading'
     heroku.resize('hobby')
 
-    migrate
     launch
+    migrate
 
     ActionCable.server.broadcast 'deployment', message: 'Deployed!', class: 'heading complete'
   end
