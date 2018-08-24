@@ -13,6 +13,7 @@ export default {
   mounted: function(){
     this.cable.subscriptions.create({ channel: 'DeploymentChannel' }, {
       received: (data) => {
+        console.log(data);
         if(data.clear){
           this.clear();
         }else if(data.message){
