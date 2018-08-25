@@ -10,7 +10,7 @@ class Deployment
   end
 
   def upgrade
-    ActionCable.server.broadcast 'deployment', message: 'Upgrading Resources', class: 'heading'
+    ActionCable.server.broadcast 'deployment', clear: true, message: 'Upgrading Resources', class: 'heading'
     heroku.upgrade('redis-volatile', 'heroku-redis:premium-0')
     heroku.upgrade('redis-persistent', 'heroku-redis:premium-0')
     heroku.upgrade('mailgun-production', 'mailgun:basic')
@@ -34,7 +34,7 @@ class Deployment
   end
 
   def downgrade
-    ActionCable.server.broadcast 'deployment', message: 'Downgrading Resources', class: 'heading'
+    ActionCable.server.broadcast 'deployment', clear: true, message: 'Downgrading Resources', class: 'heading'
     heroku.downgrade('redis-volatile', 'heroku-redis:hobby-dev')
     heroku.downgrade('redis-persistent', 'heroku-redis:hobby-dev')
     heroku.downgrade('mailgun-production', 'mailgun:starter')
@@ -64,7 +64,7 @@ class Deployment
   end
 
   def maintenance
-    ActionCable.server.broadcast 'deployment', message: 'Toggling Maintenance Mode', class: 'heading'
+    ActionCable.server.broadcast 'deployment', clear: true, message: 'Toggling Maintenance Mode', class: 'heading'
     h = Heroku.new(production)
     h.maintenance
 

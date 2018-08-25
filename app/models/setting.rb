@@ -1,5 +1,5 @@
 class Setting < RailsSettings::Base
   source Rails.root.join("config/app.yml")
 
-  cache_prefix { 'v1' }
+  cache_prefix { 'v4' }
 end

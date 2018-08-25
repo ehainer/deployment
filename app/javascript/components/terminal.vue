@@ -1,9 +1,9 @@
 <template>
   <pre class="terminal">
     <div class="console">
-      <p class="message pending">Waiting...</p>
+      <p class="message">Waiting...</p>
     </div>
-    <div class="loader" style="display: none;">
+    <div v-show="running" class="loader">
       <span class="first"></span>
       <span class="second"></span>
       <span class="third"></span>
@@ -22,7 +22,17 @@ export default {
       received: (data) => {
         if(data.clear){
           this.clear();
-        }else if(data.message){
+        }
+
+        if(data.reset){
+          this.reset();
+        }
+
+        if(data.warning){
+          this.write(data.warning, data.class || '');
+        }
+
+        if(data.message){
           this.write(data.message, data.class || '');
         }
       }
@@ -31,28 +41,47 @@ export default {
     window.onbeforeunload = (e) => {
       if(this.connection) this.connection.unsubscribe();
     };
+
+    /*
+    var i = 0;
+    this.clear();
+    this.write('Hello World ' + i, 'heading');
+    var int = setInterval(() => {
+      i++;
+      if(i % 10 == 0) this.write('Break', 'heading');
+      this.write('Hello World ' + i, i == 50 ? 'complete' : '');
+      if(i >= 50) clearInterval(int);
+    }, 100);
+    */
   },
   methods: {
     clear: function(){
+      this.running = false;
       $(this.$el).find('.console').html('');
-      $(this.$el).find('.loader').show();
+    },
+    reset: function(){
+      this.running = false;
+      $(this.$el).find('.console').html('<p class="message">Waiting...</p>');
     },
     write: function(message, klass){
-      $(this.$el).find('.console').append($('<p />', { class: 'message ' + klass }).html(message));
+      $(this.$el).find('.console').append($('<p />', { class: 'message ' + (klass || '') }).html(message));
 
-      if($(document.body).height() > $(window).height()){
-        $(document).scrollTop($(document.body).height());
+      if($(this.$el).find('.console').height() > $(window).height()){
+        $(this.$el).scrollTop($(this.$el).find('.console').height());
       }
 
       if(/complete/.test(klass)){
-        $(this.$el).find('.loader').hide();
+        this.running = false;
+      }else{
+        this.running = true;
       }
     }
   },
   data: function(){
     return {
       cable: ActionCable.createConsumer(),
-      connection: null
+      connection: null,
+      running: false
     };
   }
 }
@@ -63,12 +92,29 @@ export default {
   background-color: #1d1d1d;
   font-size: 15px;
   color: white;
-  padding: 0 15px 15px;
-  min-height: 100vh;
+  padding: 15px;
+  height: 100%;
+  max-height: 100%;
+  overflow: auto;
 
-  > .console {
-    > .pending {
-      margin-top: 15px;
+  /deep/ .console {
+    > .heading {
+      font-size: 18px;
+      font-weight: bold;
+      color: #01b7b7;
+      margin: 0 0 8px;
+    }
+
+    > .complete {
+      color: #07b333;
+    }
+
+    > .warning {
+      color: #e5e927 !important;
+    }
+
+    > .message + .heading {
+      margin-top: 8px;
     }
   }
 
@@ -95,17 +141,6 @@ export default {
         animation-delay: -160ms;
       }
     }
-  }
-
-  /deep/ .heading {
-    font-size: 18px;
-    font-weight: bold;
-    color: #01b7b7;
-    margin: 15px 0 8px;
-  }
-
-  /deep/ .complete {
-    color: #07b333;
   }
 }
 

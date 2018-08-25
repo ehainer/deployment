@@ -1,6 +1,8 @@
 # config/app.yml for rails-settings-cached
 defaults: &defaults
   deploying: false
+  pending: false
+  cancel: <%= Time.current %>
 
 development:
   <<: *defaults

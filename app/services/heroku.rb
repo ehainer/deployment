@@ -9,11 +9,8 @@ class Heroku
   end
 
   def status
-    `heroku status`
-  end
-
-  def addons
-    `heroku addons --app #{app}`
+    size = process "heroku dyno:resize --app #{app}", true
+    /Free/ =~ size ? 'downgrade' : 'upgrade'
   end
 
   def upgrade(addon, tier)
@@ -48,8 +45,8 @@ class Heroku
   end
 
   def maintenance
-    status = `heroku maintenance --app #{app}`
-    if /on/ =~ status
+    state = process "heroku maintenance --app #{app}", true
+    if /on/ =~ state
       process "heroku maintenance:off --app #{app}"
     else
       process "heroku maintenance:on --app #{app}"
