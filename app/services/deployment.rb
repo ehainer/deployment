@@ -15,6 +15,9 @@ class Deployment
     heroku.upgrade('redis-persistent', 'heroku-redis:premium-0')
     heroku.upgrade('mailgun-production', 'mailgun:basic')
 
+    ActionCable.server.broadcast 'deployment', message: 'Configuring Mailer', class: 'heading'
+    Rails.application.credentials.mailgun.each { |key, value| heroku.env(key, value) }
+
     ActionCable.server.broadcast 'deployment', message: 'Upgrading Database', class: 'heading'
     heroku.provision('heroku-postgresql:hobby-basic')
 

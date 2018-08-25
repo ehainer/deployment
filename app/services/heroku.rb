@@ -87,6 +87,11 @@ class Heroku
     process "heroku certs:auto:enable --app #{app}"
   end
 
+  def env(key, value)
+    ActionCable.server.broadcast 'deployment', message: "Configuring #{key}"
+    process "heroku config:set #{key}=#{value} --app #{app}", true
+  end
+
   private
 
     def sanitize(text)
