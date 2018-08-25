@@ -16,7 +16,7 @@ class DeploymentController < ApplicationController
       ActionCable.server.broadcast 'deployment', reset: true
     else
       if task.present? && !Setting.deploying
-        ActionCable.server.broadcast 'deployment', reset: true
+        ActionCable.server.broadcast 'deployment', clear: true
         sleep 1
         if ['upgrade', 'downgrade'].include?(task)
           # Launch / Downgrade action

@@ -41,18 +41,6 @@ export default {
     window.onbeforeunload = (e) => {
       if(this.connection) this.connection.unsubscribe();
     };
-
-    /*
-    var i = 0;
-    this.clear();
-    this.write('Hello World ' + i, 'heading');
-    var int = setInterval(() => {
-      i++;
-      if(i % 10 == 0) this.write('Break', 'heading');
-      this.write('Hello World ' + i, i == 50 ? 'complete' : '');
-      if(i >= 50) clearInterval(int);
-    }, 100);
-    */
   },
   methods: {
     clear: function(){
@@ -115,6 +103,24 @@ export default {
 
     > .message + .heading {
       margin-top: 8px;
+    }
+
+    a {
+      display: inline-block;
+      color: #00a6ff;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+
+      &:before {
+        content: '(';
+      }
+
+      &:after {
+        content: ')';
+      }
     }
   }
 

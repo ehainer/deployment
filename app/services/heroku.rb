@@ -44,11 +44,11 @@ class Heroku
     process "heroku run rake db:seed --app #{app}"
   end
 
-  def maintenance
+  def maintenance(flag=nil)
     state = process "heroku maintenance --app #{app}", true
-    if /on/ =~ state
+    if (/on/ =~ state && flag.nil?) || flag === false
       process "heroku maintenance:off --app #{app}"
-    else
+    elsif flag.nil? || flag === true
       process "heroku maintenance:on --app #{app}"
     end
   end

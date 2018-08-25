@@ -24,13 +24,21 @@ class Deployment
     ActionCable.server.broadcast 'deployment', message: 'Scaling Up', class: 'heading'
     heroku.resize('hobby')
 
-    launch
-    migrate
-    seed
+    ActionCable.server.broadcast 'deployment', message: 'Promoting Staging -> Production', class: 'heading'
+    heroku.promote(staging, production)
+
+    ActionCable.server.broadcast 'deployment', message: 'Migrating Database', class: 'heading'
+    heroku.migrate
+
+    ActionCable.server.broadcast 'deployment', message: 'Seeding Database', class: 'heading'
+    heroku.seed
 
     heroku.secure
 
-    ActionCable.server.broadcast 'deployment', message: 'Deployed!', class: 'heading complete'
+    ActionCable.server.broadcast 'deployment', message: 'Disabling Maintenance Mode', class: 'heading'
+    heroku.maintenance(false)
+
+    ActionCable.server.broadcast 'deployment', message: 'Deployed! (<a href="https://app.motherboardbirth.com" target="_blank">https://app.motherboardbirth.com</a>)', class: 'heading complete'
   end
 
   def downgrade
@@ -45,22 +53,10 @@ class Deployment
     ActionCable.server.broadcast 'deployment', message: 'Scaling Down', class: 'heading'
     heroku.resize('free')
 
+    ActionCable.server.broadcast 'deployment', message: 'Enabling Maintenance Mode', class: 'heading'
+    heroku.maintenance(true)
+
     ActionCable.server.broadcast 'deployment', message: 'Done!', class: 'heading complete'
-  end
-
-  def launch
-    ActionCable.server.broadcast 'deployment', message: 'Promoting Staging -> Production', class: 'heading'
-    heroku.promote(staging, production)
-  end
-
-  def migrate
-    ActionCable.server.broadcast 'deployment', message: 'Migrating Database', class: 'heading'
-    heroku.migrate
-  end
-
-  def seed
-    ActionCable.server.broadcast 'deployment', message: 'Seeding Database', class: 'heading'
-    heroku.seed
   end
 
   def maintenance
