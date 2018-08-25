@@ -38,7 +38,7 @@ class Deployment
     ActionCable.server.broadcast 'deployment', message: 'Disabling Maintenance Mode', class: 'heading'
     heroku.maintenance(false)
 
-    ActionCable.server.broadcast 'deployment', message: 'Deployed! (<a href="https://app.motherboardbirth.com" target="_blank">https://app.motherboardbirth.com</a>)', class: 'heading complete'
+    ActionCable.server.broadcast 'deployment', message: 'Launched! <a href="https://app.motherboardbirth.com" target="_blank">https://app.motherboardbirth.com</a>', class: 'heading complete'
   end
 
   def downgrade
