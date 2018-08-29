@@ -28,12 +28,20 @@ export default {
           this.reset();
         }
 
-        if(data.warning){
-          this.write(data.warning, data.class || '');
-        }
-
         if(data.message){
           this.write(data.message, data.class || '');
+        }
+
+        if(data.timer){
+          let counter = 30;
+          this.timer = setInterval(() => {
+            if(counter > 0){
+              counter--;
+              $(this.$el).find('.timer').html(counter);
+            }else{
+              clearInterval(this.timer);
+            }
+          }, 1000);
         }
       }
     });
@@ -45,10 +53,12 @@ export default {
   methods: {
     clear: function(){
       this.running = false;
+      if(this.timer) clearInterval(this.timer);
       $(this.$el).find('.console').html('');
     },
     reset: function(){
       this.running = false;
+      if(this.timer) clearInterval(this.timer);
       $(this.$el).find('.console').html('<p class="message">Waiting...</p>');
     },
     write: function(message, klass){
@@ -69,7 +79,8 @@ export default {
     return {
       cable: ActionCable.createConsumer(),
       connection: null,
-      running: false
+      running: false,
+      timer: null
     };
   }
 }

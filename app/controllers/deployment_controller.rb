@@ -16,15 +16,13 @@ class DeploymentController < ApplicationController
       ActionCable.server.broadcast 'deployment', reset: true
     else
       if task.present? && !Setting.deploying
-        ActionCable.server.broadcast 'deployment', clear: true
-        sleep 1
         if ['upgrade', 'downgrade'].include?(task)
           # Launch / Downgrade action
           heroku = Heroku.new('motherboard-production')
           if heroku.status == task
-            ActionCable.server.broadcast 'deployment', clear: true, warning: "Application is already #{state_past}. Try a different action.", class: 'heading complete warning'
+            ActionCable.server.broadcast 'deployment', clear: true, message: "Application is already #{state_past}. Try a different action.", class: 'heading complete warning'
           else
-            ActionCable.server.broadcast 'deployment', clear: true, warning: "#{state_future} Motherboard Birth in 30 seconds... Press button again to cancel.", class: 'heading warning'
+            ActionCable.server.broadcast 'deployment', clear: true, message: "#{state_future} Motherboard Birth in <span class=\"timer\">30</span> seconds... Press button again to cancel.", timer: true, class: 'heading warning'
             DeploymentJob.set(wait: 30.seconds).perform_later(task, now.iso8601)
             Setting.pending = true
           end
