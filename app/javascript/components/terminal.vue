@@ -1,7 +1,7 @@
 <template>
   <pre class="terminal">
     <div class="console">
-      <p class="message">Waiting...</p>
+      <p class="message">Use the force... of your thumb to push the button.</p>
     </div>
     <div v-show="running" class="loader">
       <span class="first"></span>
@@ -59,7 +59,7 @@ export default {
     reset: function(){
       this.running = false;
       if(this.timer) clearInterval(this.timer);
-      $(this.$el).find('.console').html('<p class="message">Waiting...</p>');
+      $(this.$el).find('.console').html('<p class="message">Use the force... of your thumb to push the button.</p>');
     },
     write: function(message, klass){
       $(this.$el).find('.console').append($('<p />', { class: 'message ' + (klass || '') }).html(message));
